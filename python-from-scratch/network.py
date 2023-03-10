@@ -47,18 +47,27 @@ class Network:
     @staticmethod
     def __ReLU(vector: numpy.ndarray) -> numpy.ndarray:
         '''
-        the rectified linear activation function
-        for a vector
+        rectified linear activation function
+        for a 1D numpy array / nD vector
         '''
         return numpy.array([max(0.0, n) for n in vector])
+
+    def __sigmoid(self, vector: numpy.ndarray) -> numpy.ndarray:
+        '''
+        sigmoid activation function
+        for a 1D numpy array / nD vector
+        '''
+        return numpy.array([1.0 / (1.0 + pow(math.e, -n)) for n in vector])
 
     def calculate_outputs(self, inputs: numpy.ndarray) -> numpy.ndarray:
         '''
         calculate outputs using given inputs
+        ReLU activation is used for all layers
+        except the final layer, which uses sigmoid activation
         '''
         current_layer = inputs
-        for i in range(self.__layer_count - 1):
+        for i in range(self.__layer_count - 2):
             current_layer = self.__ReLU(
                 self.__weights[i].dot(current_layer) + self.__biases[i]
             )
-        return current_layer
+        return self.__sigmoid(self.__weights[-1].dot(current_layer) + self.__biases[-1])
