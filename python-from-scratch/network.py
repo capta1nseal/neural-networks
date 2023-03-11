@@ -59,7 +59,13 @@ class Network:
         '''
         return numpy.array([1.0 / (1.0 + pow(math.e, -n)) for n in vector])
 
-    def calculate_outputs(self, inputs: numpy.ndarray) -> numpy.ndarray:
+    def get_layer_sizes(self) -> list[int]:
+        """
+        returns the layer sizes of the neural network
+        """
+        return self.__layer_sizes
+
+    def calculate_output(self, inputs: numpy.ndarray) -> numpy.ndarray:
         '''
         calculate outputs using given inputs
         ReLU activation is used for all layers
@@ -71,3 +77,43 @@ class Network:
                 self.__weights[i].dot(current_layer) + self.__biases[i]
             )
         return self.__sigmoid(self.__weights[-1].dot(current_layer) + self.__biases[-1])
+
+    def get_state(self, inputs: numpy.ndarray) -> list[numpy.ndarray]:
+        """
+        get the state of the network including hidden layers
+        """
+        state = [inputs]
+        for i in range(self.__layer_count - 2):
+            state.append(
+                self.__ReLU(
+                    self.__weights[i].dot(state[-1]) + self.__biases[i]
+                )
+            )
+        state.append(self.__sigmoid(self.__weights[-1].dot(state[-1]) + self.__biases[-1]))
+        return state
+
+    def get_weights(self, index: int) -> numpy.ndarray:
+        """
+        get one layer's weights
+        """
+        return self.__weights[index]
+
+    def get_biases(self, index: int) -> numpy.ndarray:
+        """
+        get one layer's biases
+        """
+        return self.__biases[index]
+
+    def adjust_weights(self, weight_adjustments: list[numpy.ndarray]) -> None:
+        """
+        adjust the weights of the network
+        """
+        for i, vector in enumerate(weight_adjustments):
+            self.__weights[i] += vector
+
+    def adjust_biases(self, bias_adjustments: list[numpy.ndarray]) -> None:
+        """
+        adjust the biases of the network
+        """
+        for i, vector in enumerate(bias_adjustments):
+            self.__biases[i] += vector
